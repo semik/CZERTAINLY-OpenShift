@@ -1,0 +1,22 @@
+---
+global:
+  image:
+     pullSecrets:
+      - harbor-secret
+  database:
+    host: "db.example.com"
+    name: "czertainlydb"
+    username: "czertainlyuser"
+    password: "newgenerationtrustcare"
+  utils:
+    enabled: true
+
+emailNotificationProvider:
+  enabled: true
+  smtp:
+    host: mail.example.com
+    port: 587
+    tls: true
+    auth: true
+    username: czertainly
+    password: "newgenerationtrustcare"
