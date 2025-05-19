@@ -1,3 +1,5 @@
+# to apply this file you need helm version v3.17.3 or later,
+# it was confirmed that v3.14.3 does not work
 ---
 image:
   securityContext:
