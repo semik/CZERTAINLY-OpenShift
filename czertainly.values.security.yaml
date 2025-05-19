@@ -1,0 +1,125 @@
+---
+image:
+  securityContext:
+    runAsUser: null
+
+opa:
+  image:
+    securityContext:
+      runAsUser: null
+
+curl:
+  image:
+    securityContext:
+      runAsUser: null
+
+kubectl:
+  image:
+    securityContext:
+      runAsUser: null
+
+apiGateway:
+  image:
+    securityContext:
+      runAsUser: null
+  kubectl:
+    image:
+      securityContext:
+        runAsUser: null
+
+commonCredentialProvider:
+  image:
+    securityContext:
+      runAsUser: null
+
+ejbcaNgConnector:
+  image:
+    securityContext:
+      runAsUser: null
+
+pyAdcsConnector:
+  image:
+    securityContext:
+      runAsUser: null
+
+x509ComplianceProvider:
+  image:
+    securityContext:
+      runAsUser: null
+
+cryptosenseDiscoveryProvider:
+  image:
+    securityContext:
+      runAsUser: null
+
+networkDiscoveryProvider:
+  image:
+    securityContext:
+      runAsUser: null
+
+keystoreEntityProvider:
+  image:
+    securityContext:
+      runAsUser: null
+
+softwareCryptographyProvider:
+  image:
+    securityContext:
+      runAsUser: null
+
+ctLogsDiscoveryProvider:
+  image:
+    securityContext:
+      runAsUser: null
+
+emailNotificationProvider:
+  image:
+    securityContext:
+      runAsUser: null
+
+utilsService:
+  image:
+    securityContext:
+      runAsUser: null
+
+messagingService:
+  podSecurityContext:
+    runAsUser: null
+    fsGroup: null
+  image:
+    securityContext:
+      runAsUser: null
+
+schedulerService:
+  image:
+    securityContext:
+      runAsUser: null
+  curl:
+    image:
+      securityContext:
+        runAsUser: null
+
+feAdministrator:
+  image:
+    securityContext:
+      runAsUser: null
+
+authService:
+  image:
+    securityContext:
+      runAsUser: null
+
+authOpaPolicies:
+  image:
+    securityContext:
+      runAsUser: null
+
+keycloakInternal:
+  image:
+    securityContext:
+      runAsUser: null
+
+pgBouncer:
+  image:
+    securityContext:
+      runAsUser: null

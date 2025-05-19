@@ -1,0 +1,214 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: czertainly-nginx-configmap
+data:
+  nginx.conf: |
+    worker_processes  6;
+
+    error_log  /dev/stderr debug;
+    pid        /tmp/nginx.pid;
+
+    events {
+        worker_connections  1024;
+    }
+
+    http {
+        include       /etc/nginx/mime.types;
+        default_type  application/octet-stream;
+
+        log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                          '$status $body_bytes_sent "$http_referer" '
+                          '"$http_user_agent" "$http_x_forwarded_for"';
+
+        access_log  /dev/stdout main;
+
+        sendfile        on;
+
+        keepalive_timeout  65;
+
+        include /etc/nginx/conf.d/*.conf;
+
+        proxy_http_version                      1.1;
+    }
+  ingress.conf: |
+    server {
+        listen 8443 ssl http2;
+        server_name _;
+
+        ssl_certificate         /etc/nginx/ssl/ingress.crt;
+        ssl_certificate_key     /etc/nginx/ssl/ingress.key;
+        ssl_password_file       /etc/nginx/ssl/ingress.key.password;
+        ssl_client_certificate  /etc/nginx/ssl/trustedCA.crt;
+        ssl_verify_client       optional;
+
+        location / {
+            proxy_set_header X-Forwarded-Proto      $scheme;
+            proxy_set_header X-Forwarded-Host       $host;
+            proxy_set_header X-Forwarded-Port       443;
+            proxy_set_header X-Forwarded-For        $proxy_add_x_forwarded_for;
+            proxy_set_header ssl-client-cert        $ssl_client_escaped_cert;
+            proxy_set_header Host                   $host;
+
+            proxy_redirect  off;
+            proxy_pass      http://api-gateway-service:8000/;
+        }
+    }
+  ingress.crt: |
+    -----BEGIN CERTIFICATE-----
+    MIIDjDCCAnSgAwIBAgIRAM268R1TJhBJ8xa8pwgKcP0wDQYJKoZIhvcNAQELBQAw
+    GDEWMBQGA1UEAwwNU2VtaWsgUm9vdCBDQTAeFw0yNTA1MTQxNDAwMzVaFw0yNzA4
+    MTcxNDAwMzVaMEQxQjBABgNVBAMMOWN6ZXJ0YWlubHktc2VtaWs3NS1kZXYuYXBw
+    cy5ybTMuN3dzZS5wMS5vcGVuc2hpZnRhcHBzLmNvbTCCASIwDQYJKoZIhvcNAQEB
+    BQADggEPADCCAQoCggEBAPS6coSvPYgc/P0eGfTbA/za3GV21Eq4hF+4cAHeC8Ir
+    CtCgEDLHbfp0DCXtBchZtkNr1x3kH4uhkMAQ1cOWOIT7FHH3ugahdt8FaV20g+tt
+    FgsXsB9w5nR/b3cyFS+v5GRz4QRoDg+/tFnHa2UQcrgpJ3ug0wZvSl0L5rTsmkr4
+    LxC/J+BCndN92BHReEXoyILTK1VBYOFmquZ5eAMEW3VHhSek27KJgzFO+Q4bzgCd
+    PE5pKUzoXiIbnIFIoQhp+wbGwcKkWvhdpD0XI5lq3t8Tn6Wt2tjgehVqjdv/yEaw
+    jfUbxncnoU+C6rxHQcPK0YPWC3ysne/c0QZ+4WEiq9MCAwEAAaOBpDCBoTAJBgNV
+    HRMEAjAAMB0GA1UdDgQWBBSC7sX/t+ZFTYW4weVa4m1gyLK19DBTBgNVHSMETDBK
+    gBRtNzuxYLbokomEyywg5Ss3vAKM86EcpBowGDEWMBQGA1UEAwwNU2VtaWsgUm9v
+    dCBDQYIUCptlRDQTmnXIZnPAiDQgkrBiMSIwEwYDVR0lBAwwCgYIKwYBBQUHAwEw
+    CwYDVR0PBAQDAgWgMA0GCSqGSIb3DQEBCwUAA4IBAQBha775AcAqJW3smnRXbIGg
+    Z8bKNZ/SDcZzQFYjsVaXFl86/U670+gU7xROZdzALFw0WKpqM1fYncvZ79kn2lfB
+    6st+e1T8r9omzOsaY0L1ewExNmJ5L0+rMio8A9s2DjqFeKUOoL9wgNVxb6tQidyq
+    AF0wUtEL3TjIRLf3CTP8XSHXeG75Tr+16bqTkzg71sKLXaUh87pE3j3O0xTawyLm
+    cLM9RfLCCPa47NIztrHLg88eX8UKOCvnPuYBg6ZAiXV4xcBosuj12RRNpOIclWwf
+    0b8Fi80zcqRi9COPDDqo69Xn/voyilo4mrXtZCLKypgOY3e1/ayUQ7Dy0qGEoMUb
+    -----END CERTIFICATE-----
+  ingress.key: |
+    -----BEGIN ENCRYPTED PRIVATE KEY-----
+    MIIFLTBXBgkqhkiG9w0BBQ0wSjApBgkqhkiG9w0BBQwwHAQIR0uNxJleXXkCAggA
+    MAwGCCqGSIb3DQIJBQAwHQYJYIZIAWUDBAEqBBDsusEzvFHlyAOGTA9cR27oBIIE
+    0BonMBWlmLIK5Xos6yJ3eCiPQBJIWSow3ICyOjQ97hrN31XZsPvR/BHb5JTJGB+K
+    EgcTEMCKbSLp0NMJwyaGH917Q6Kc4aSfSAtu9Mc6uhtC4eXdtJ6S9GugvReoRJ5W
+    4R8gTZ1XX0OlN08NCK9+NWiCTfkpcuTLcRUIcUtmgbyBCiftnVG26WY2hCQO+3oh
+    haIR0XGe2669iZess8X6qVCpXeOawvBbh/ZgFy5+uUPBbYn/D4Tr2EKMkqRBFuDo
+    HdRpliBKA0S41i7+FlGAAU4tOQkUe96e5gGg9INCEbrWTZWF2Ner+dh3wVsTLI4m
+    o+zhvoPrPD6tUpGwAC9OQlG5booM64xXE4u/W5upzVXeY9RYd5xQYdxudhak2ahb
+    SG+6uphjGzTPQuV3BzTQOisldlxN9nXr2GvXIFSnfRAnrmfdmkZ97h3WiW5Gk9Z+
+    vPipxk8dh4rwuwOylMTAPZwPRiqa0Wy01nM+p4u+HDHs2QMHYiDaU0zVoz4/mZbw
+    vJlRPVj02rNZLGFu16Y84KILTRNYoNNdNACjWpL4gDzVFF0WeSou0Zzjcgtp2hiL
+    e9sKhr5JV6O+8B6peXWTaR7fBR/pQoHEOXp5xQchqxFGO0IrzXRF2k4wq4Kuf8ij
+    ljzDYN7EHblenmMMqwjcHfDSUOs6I6hqa4RHDWmpDyw1lTxfzWSSLNYbwA/NVWpr
+    lOUYPZpKzh4ej+6+3RqT1S94ffG2bQVPWnlALbnVvRQYia7lM5oqkDFp1rlN+Z/i
+    ITTp6OOLm9Et66brJkSK9z0zPztV+KCKu0quIZV8y4i1d9RCXQXobX5jm4EDGFcM
+    aFvPfjD8klerMne5OqI65O6PuQC7MZDez0Z6LH8kiIO4d+/U0/boUfxCMVCB62xv
+    Ued1s0f7wxgM9lpV5DDdmHW682SwUIjL2aiGg39kv7qMWdFGLIrpogeB+s1EbFs7
+    R0lapV+0rmeubJuD7u2SbBdkD5xEtA7JLZaulUVI1RBdHUE1MMrmNj1BFyDCywWP
+    H8vhQigVdp7wsIY07Hw6/hrHT2Mq8F4Jf91hh/2J27yEmqNT6HPUFtAyWxBr66sA
+    OddtpW4R4VtTsHxiRs5BqsKuTEB2Wq/5rLM8vwjQkPbobZTscyJA/FLnOSWsUCJJ
+    gQHmOPwmKNySHzDVyBCcK7MUJhh2e7Gp8dJRLvV0i+Cx0RxzkQCqlvVrZeeyIMpI
+    ACMJGEvW8PG/sakXSoIIaDBUKv63DuRphLYs3H3YpeV6c+FpCAfydo8xVpGtVv+g
+    qBc9vRhqVaIdO/aRx2izKdgng5BtGJp9wrytYyOKZadkueERa2sfZ61bhTeKrfaT
+    i7mJ4tkhs5/MvqbCGVAUePcsokED6J9+Rh1qVlpDFwb2eu3yBXlE5cWYHxmjxk/F
+    L3q0LxdEs1Cfj/92z8kBs7VVrJIExkvt0c3sgLoZqUvqQKgdIg4c4/hS/nJ89uxL
+    2KOSzEbipAwjhmFmFoQ8s7DJetMZhyNRhWExmSiOkckDyHlwacIMevCQEXIx046O
+    r26YbFW5w/dY6hAp4+O5/cRKg/GNz5MQbaOwO2CX7dPiyQN0CFZErQWQjPLk9kEY
+    Yl7GRo3MhF5gnVEnRKWiLAuMH8exKC3nNWcpv995ao4L
+    -----END ENCRYPTED PRIVATE KEY-----
+  ingress.key.password: newgenerationtrustcare
+  trustedCA.crt: |
+    # CN = CZERTAINLY Dummy Root CA
+    -----BEGIN CERTIFICATE-----
+    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
+    -----END CERTIFICATE-----
+    # CN = Demo MS Sub CA, O = 3Key Company s.r.o.
+    -----BEGIN CERTIFICATE-----
+    MIIGBDCCA+ygAwIBAgIUZWh53G38w1xDFIgxfdszH0hqOEcwDQYJKoZIhvcNAQEN
+    BQAwNTEVMBMGA1UEAwwMRGVtbyBSb290IENBMRwwGgYDVQQKDBMzS2V5IENvbXBh
+    bnkgcy5yLm8uMB4XDTE5MTAxMzA2MzMxMloXDTM0MTAwOTA2MzMxMlowNzEXMBUG
+    A1UEAwwORGVtbyBNUyBTdWIgQ0ExHDAaBgNVBAoMEzNLZXkgQ29tcGFueSBzLnIu
+    by4wggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQDRuMWQR4HWxTicFLFv
+    7GwHyTYMajNL6bXb39qa+QiuP+mFciRVrpVy2LhV7mSPwHQNQtKXd2cJYHRO3bMF
+    t/ucA1Hdc76vk+9FzTIlNIRsVcGx1K9d2ZzoaVCoJZBu5BHXIOo1kbrAUrhZIJpP
+    66Eema7pI6VZ39USwufzDKZxdnb0kuvU7fyWltqqemX802CrLeNMOLbxhYuTMqLd
+    xHoK5WmpkSmXIJtrBVu8bcS7yRUxD8QwfmeWtoA+RqjkyVwKOtGx15rYho68ze5T
+    HtkeS1yUe/NzgfC/ZLgl96jKTstHO2uRKygjkTgdB/M2BSYaS3KiLqNDNOjj3xjn
+    zrF7jZFM/qvvC6cHsvmdaChfbG70NQmAaVoN8czxv31SY/FQfINITw7fjT+HpXqA
+    KqYhrAdBAiDi68ynKBuvCbBGxNZ6dMpwd2LiRCrE7KP1D8TVs3XokVRuN3IjVckr
+    nSbUKj7vdvhQ7dU/BqcD612ceULwi3QgOlqJ602636RubyDzMj3Azscplx0rfZF8
+    v/ofZooU5Qs8UT078whcLofG3q1MsGnFypZxz+tPpiA5y6BKnQb6DDsdGHsYHiHC
+    z9VSDPQ1ZXzPZpXTVUsKV7W7UwzaKVixiPX1S4LTBzHtKTEmNITIuziT7idq17nC
+    o/YwxriMMy4vBTSq6eihLLMsFQIDAQABo4IBCDCCAQQwDwYDVR0TAQH/BAUwAwEB
+    /zAfBgNVHSMEGDAWgBTNejApffoZ0UsRPDpV1f3pxL/MnjBLBggrBgEFBQcBAQQ/
+    MD0wOwYIKwYBBQUHMAKGL2h0dHA6Ly9wa2kuM2tleS5jb21wYW55L2Nhcy9kZW1v
+    L2RlbW9yb290Y2EuY3J0MBEGA1UdIAQKMAgwBgYEVR0gADBBBgNVHR8EOjA4MDag
+    NKAyhjBodHRwOi8vcGtpLjNrZXkuY29tcGFueS9jcmxzL2RlbW8vZGVtb3Jvb3Rj
+    YS5jcmwwHQYDVR0OBBYEFJLCvN9VxcGThUkH96zJHQtoAQdRMA4GA1UdDwEB/wQE
+    AwIBhjANBgkqhkiG9w0BAQ0FAAOCAgEANNJELc6c61PPf5Sptcfzso2AGbcfAgqq
+    MZH/tmCq1YWazyWillPMkHJLg9DIuNN/+4UFpb0D2FxaW9Sx32RCwvzVMR9yNI+0
+    OjSlMMPidUQhe2qLxU+Mdb4mfq1Fr4f/ztLaOweXNBqx9wUVt9KV4xDJRKYLEeFz
+    C3XJmwxisIFS8JmM5y5BQ5AryF0iftdREl/aMkfWnM0cP2iNLqQ+2HKcdJFGrJko
+    NXPCVwLN+u8XseH0DB/LGs/NrqIx5YButkL+Ga3ZUzTfTpMgoluuWxp/dw8sPn9F
+    H1fIE3Pt0HOfl0a+6DPYN33im/Veb1ju78VRMvvEPqFeFumsrJP0mTI3Zx0fBZ1k
+    wVUXC4+xa3kM736aG5bKmhHiCB1JiXr4orO4Gq/W8Ew5G/sdItEBIwHGRryvpw9t
+    hQEcGv6oX3ClddRItrzyiZxDYCRhsJ5Fv9evX45xBsWqaJ7/aaCj/qSErm3QpOhH
+    lEA6LL9AXI2Mc+jbG7RmqjVaYWNpcV7+dyymwxyUW88NAcvFMKiahEI7RsSNcZ1U
+    pJ6oWCsaVcWnq64o1oTnQCu40AMo6XLrdXmOrK0iXDC3y7ThjlzDyRHtZpq/4Pj0
+    DG6sUpj3aWjt+zXo3XqcGtFQpr9HAiza+Ew7XJsGn4c3m13l/kQ3LuHQ2wt7BKvO
+    fchV2B+uw0o=
+    -----END CERTIFICATE-----
+    # CN = Demo Root CA, O = 3Key Company s.r.o.
+    -----BEGIN CERTIFICATE-----
+    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
+    -----END CERTIFICATE-----

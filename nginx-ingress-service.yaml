@@ -1,0 +1,14 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx-ingress-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8443
+      protocol: TCP
+      name: ingress
+  selector:
+    app.kubernetes.io/name: czertainly-nginx
+    app.kubernetes.io/instance: czertainly-tlm

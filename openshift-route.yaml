@@ -1,0 +1,15 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: czertainly
+spec:
+  to:
+    kind: Service
+    name: nginx-ingress-service
+    weight: 100
+  port:
+    targetPort: ingress
+  tls:
+    termination: passthrough
+    insecureEdgeTerminationPolicy: None
+  wildcardPolicy: None
