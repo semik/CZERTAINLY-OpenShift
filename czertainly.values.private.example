@@ -9,9 +9,13 @@ global:
     username: "czertainlyuser"
     password: "newgenerationtrustcare"
   utils:
+    # true only if you have credentials to harbor.3key.company
     enabled: true
+  hostname: czertainly.example.com
 
 emailNotificationProvider:
+  # true only if you provide valid credentials to SMTP server,
+  # otherwise will whole helm install fail
   enabled: true
   smtp:
     host: mail.example.com
