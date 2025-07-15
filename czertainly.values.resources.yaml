@@ -43,10 +43,10 @@ apiGateway:
     resources:
       requests:
         memory: "1500Mi"
-        cpu: 400m
+        cpu: 300m
       limits:
         memory: "1500Mi"
-        cpu: 400m
+        cpu: 300m
   kubectl:
     image:
       resources:
@@ -62,7 +62,7 @@ commonCredentialProvider:
     resources:
       requests:
         memory: "270Mi"
-        cpu: 200m
+        cpu: 100m
       limits:
         memory: "270Mi"
         cpu: 200m
@@ -72,7 +72,7 @@ ejbcaNgConnector:
     resources:
       requests:
         memory: "550Mi"
-        cpu: 200m
+        cpu: 100m
       limits:
         memory: "550Mi"
         cpu: 200m
@@ -102,7 +102,7 @@ cryptosenseDiscoveryProvider:
     resources:
       requests:
         memory: "550Mi"
-        cpu: 200m
+        cpu: 100m
       limits:
         memory: "550Mi"
         cpu: 200m
@@ -152,7 +152,7 @@ emailNotificationProvider:
     resources:
       requests:
         memory: "450Mi"
-        cpu: 200m
+        cpu: 100m
       limits:
         memory: "450Mi"
         cpu: 200m
@@ -162,7 +162,7 @@ utilsService:
     resources:
       requests:
         memory: "300Mi"
-        cpu: 200m
+        cpu: 100m
       limits:
         memory: "300Mi"
         cpu: 200m
@@ -172,7 +172,7 @@ messagingService:
     resources:
       requests:
         memory: "2000Mi"
-        cpu: 200m
+        cpu: 100m
       limits:
         memory: "2000Mi"
         cpu: 200m
@@ -182,10 +182,10 @@ schedulerService:
     resources:
       requests:
         memory: "450Mi"
-        cpu: 200m
+        cpu: 100m
       limits:
         memory: "450Mi"
-        cpu: 300m
+        cpu: 200m
   curl:
     image:
       resources:
@@ -214,7 +214,7 @@ authService:
         cpu: 100m
       limits:
         memory: "270Mi"
-        cpu: 200m
+        cpu: 150m
 
 authOpaPolicies:
   image:
