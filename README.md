@@ -6,22 +6,22 @@ Values for CZERTAINLY when running on OpenShift
 git clone https://github.com/semik/CZERTAINLY-OpenShift.git
 cd CZERTAINLY-OpenShift
 
-# create a secret for accessing private images in harbor.3key.company (typically not required)
+# Create a secret for accessing private images in harbor.3key.company (typically not required)
 oc create secret docker-registry harbor-secret \
   --docker-server=harbor.3key.company \
   --docker-username=<uid> \
   --docker-password=<password> \
   --docker-email=<registerd-email>
 
-# create route first
+# Create route first
 oc apply -f openshift-route.yaml
-# retreive info about hostname
+# retrieve info about hostname
 oc get route czertainly -o jsonpath='{.spec.host}' ; echo ''
 
-# create your private values and fill them with valid content
+# Create your private values and fill them with valid content
 cp czertainly.values.private.example czertainly.values.private.yaml
 
-# install CZERTAINLY
+# Install CZERTAINLY
 helm upgrade -n semik75-dev --install czertainly-tlm \
   oci://harbor.3key.company/czertainly-helm/czertainly \
   --values=./czertainly.values.openshift.base.yaml \
@@ -29,13 +29,13 @@ helm upgrade -n semik75-dev --install czertainly-tlm \
   --values=./czertainly.values.security.yaml \
   --values=./czertainly.values.private.yaml
 
-# install NGINX to terminate mTLS
+# Install NGINX to terminate mTLS
 oc apply -f nginx-ingress-deployment.yaml \
   -f nginx-ingress-configmap.yaml \
   -f nginx-ingress-service.yaml \
   -f openshift-route.yaml
 
-# now you can test your CZERTAINLY deployment, don't forget to add /administrator/ after hostname :)
+# Now you can test your CZERTAINLY deployment, don't forget to add /administrator/ after hostname :)
 ```
 
 ## Note on Security Context
