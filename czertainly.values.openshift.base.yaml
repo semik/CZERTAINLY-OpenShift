@@ -173,11 +173,4 @@ messagingService:
   #  disabling messaging service persistence is good for testing
   #  but not recommended for production
   persistence:
-    enabled: false
-
-# remove after CZERTAINLY 2.14.3+ for more details see:
-# https://github.com/CZERTAINLY/CZERTAINLY-Helm-Charts/issues/236
-pgBouncer:
-  section:
-    pgbouncer:
-      user: null
+    enabled: true
